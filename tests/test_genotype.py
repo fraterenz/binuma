@@ -1,14 +1,25 @@
 import pandas as pd
 import numpy as np
+from hypothesis import given, strategies as st
 import pytest
 from io import StringIO
+from binuma import Dataset
 from binuma.genotype import (
     BinaryMutationMatrix,
+    DonorGenotype,
     EntryIsNan,
     NonUniqueCells,
     NonUniqueMutations,
     filter_cells_from_matrix,
 )
+
+
+def valid_age(n: int) -> bool:
+    return (n > 0) & (n < 120)
+
+
+def valid_size(n: int) -> bool:
+    return n > 0
 
 
 def test_genotype_floats():
@@ -96,3 +107,57 @@ def test_filter_cells():
     cells2keep = set(binary_mut.genotype.columns[:2].to_list())
     filtered = filter_cells_from_matrix(binary_mut, cells2keep)
     assert len(set(filtered.genotype.columns.to_list()) - cells2keep) == 0
+
+
+@given(st.integers().filter(lambda n: n > 120))
+def test_donor_genotype_wrong_age(wrong_age: int):
+    binary_mut = create_cleaned_binary_mut()
+    wrong_age = 123
+    with pytest.raises(ValueError):
+        DonorGenotype(
+            name="d",
+            age=wrong_age,
+            status="healthy",
+            pop_size=2111,
+            genotype=binary_mut,
+            dataset=Dataset.HSCSIMULATIONS,
+        )
+
+
+@given(st.integers().filter(lambda n: n < 0))
+def test_donor_genotype_wrong_neg_age(wrong_age: int):
+    binary_mut = create_cleaned_binary_mut()
+    wrong_age = 123
+    with pytest.raises(ValueError):
+        DonorGenotype(
+            name="d",
+            age=wrong_age,
+            status="healthy",
+            pop_size=2111,
+            genotype=binary_mut,
+            dataset=Dataset.HSCSIMULATIONS,
+        )
+
+
+@given(
+    st.text(),
+    st.integers().filter(valid_size),
+    st.integers().filter(valid_age),
+    st.sampled_from(["healthy", "cancer", "bcr_abl1"]),
+    st.sampled_from(Dataset),
+)
+def test_donor_genotype(name, pop_size, age, status, dataset):
+    binary_mut = create_cleaned_binary_mut()
+    d = DonorGenotype(
+        name=name,
+        age=age,
+        status=status,
+        pop_size=pop_size,
+        dataset=dataset,
+        genotype=binary_mut,
+    )
+    assert d.metadata.name == name
+    assert d.metadata.age == age
+    assert d.metadata.status == status
+    assert d.metadata.pop_size == pop_size
+    assert d.metadata.dataset == dataset

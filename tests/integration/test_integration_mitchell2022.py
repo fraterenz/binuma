@@ -76,13 +76,11 @@ def test_load_genotype_with_indels():
 
 def test_load_mitchell():
     donors = mitchell2022.load_mitchell2022(BASEPATH)
-    assert [d.name for d in donors.donors] == [DONORNAME]
+    assert [d.metadata.name for d in donors.donors] == [DONORNAME]
 
 
 def test_sfs_nb_cells_mitchell():
     donors = mitchell2022.load_mitchell2022(BASEPATH)
-    donors_sfs = donors.compute_mitchell2022_sfs()
-    assert [d.name for d in donors_sfs.donors] == [DONORNAME]
     assert (
         mitchell2022.get_donors()[0]["cells"]
         == donors.donors[0].genotype.get_nb_cells()

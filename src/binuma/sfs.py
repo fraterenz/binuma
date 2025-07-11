@@ -1,11 +1,11 @@
-from abc import ABC
-from dataclasses import dataclass
-from typing import Sequence
+import pandas as pd
+from typing import Dict, NewType, List, Tuple
 from futils import snapshot
+from pydantic import UUID4
 from scipy import stats
 
-from binuma import Experiment
-from binuma.genotype import BinaryMutationMatrix, DonorGenotype, DonorsGenotype
+from binuma.genotype import BinaryMutationMatrix, DonorGenotype
+from binuma.metadata import MetadataDataset
 
 
 class Sfs:
@@ -29,40 +29,8 @@ class Sfs:
         return float(stats.entropy(snapshot.array_from_hist(self.sfs), base=2))
 
 
-class DonorSfs:
-    def __init__(
-        self,
-        name: str,
-        age: int,
-        is_healthy: bool,
-        experiment: Experiment,
-        sfs: Sfs,
-        cells: int,
-    ) -> None:
-        self.name = name
-        self.age = age
-        self.is_healthy = is_healthy
-        self.experiment = experiment
-        self.sfs = sfs
-        self.cells = cells
-
-
-@dataclass
-class DonorsSfs(ABC):
-    """A collection of donors representing a dataset of site frequency spectra."""
-
-    donors: Sequence[DonorSfs]
-
-
-def sfs_from_genotype(geno_dnr: DonorGenotype) -> DonorSfs:
-    return DonorSfs(
-        geno_dnr.name,
-        geno_dnr.age,
-        geno_dnr.is_healthy,
-        geno_dnr.experiment,
-        compute_sfs(geno_dnr.genotype),
-        geno_dnr.genotype.get_nb_cells(),
-    )
+def sfs_from_genotype(geno_dnr: DonorGenotype) -> Sfs:
+    return compute_sfs(geno_dnr.genotype)
 
 
 def compute_sfs(genotype: BinaryMutationMatrix) -> Sfs:
@@ -77,7 +45,18 @@ def compute_sfs(genotype: BinaryMutationMatrix) -> Sfs:
     )
 
 
-def from_genotyped_donors_to_donors(
-    genotyped_donors: DonorsGenotype,
-) -> DonorsSfs:
-    return DonorsSfs([sfs_from_genotype(d) for d in genotyped_donors.donors])
+DonorsSfs = NewType("DonorsSfs", Dict[UUID4, Sfs])
+
+
+class DonorsGenotype:
+    def __init__(self, donors: List[DonorGenotype]) -> None:
+        self.donors = donors
+
+    def into_sfs(self) -> Tuple[DonorsSfs, MetadataDataset]:
+        donors_sfs = DonorsSfs(
+            {d.metadata.idx: sfs_from_genotype(d) for d in self.donors}
+        )
+        metadata = MetadataDataset(
+            pd.DataFrame.from_records([dict(d.metadata) for d in self.donors])
+        )
+        return donors_sfs, metadata

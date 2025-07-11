@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Any, Dict, List, NewType, Sequence
+from typing import Any, Dict, List, NewType
 
-from binuma import Experiment
-from binuma.genotype import DonorGenotype, DonorsGenotype, BinaryMutationMatrix
-from binuma.sfs import DonorsSfs, from_genotyped_donors_to_donors
+
+from binuma import Dataset
+from binuma.genotype import DonorGenotype, BinaryMutationMatrix
+from binuma.sfs import DonorsGenotype
 
 
 GenotypeMitchellRaw = NewType("GenotypeMitchellRaw", pd.DataFrame)
@@ -66,11 +67,7 @@ def get_donors() -> List[Dict[str, Any]]:
     ]
 
 
-class DonorMitchell2022(DonorGenotype):
-    pass
-
-
-class DonorsMitchel2022(DonorsGenotype):
+class DonorsMitchell2022(DonorsGenotype):
     """Mutational matrices from the paper Mitchell 2022 et al. published in
     Nature.
 
@@ -78,13 +75,6 @@ class DonorsMitchel2022(DonorsGenotype):
     obtained by *in vitro* expansion of individual HSC/HPP cells into clonal
     colonies (clonogenic assay).
     """
-
-    def __init__(self, donors: Sequence[DonorMitchell2022]) -> None:
-        super().__init__()
-        self.donors = donors
-
-    def compute_mitchell2022_sfs(self) -> DonorsSfs:
-        return from_genotyped_donors_to_donors(self)
 
 
 def filter_mutations(
@@ -111,7 +101,7 @@ def donor_mut_matrix(
 
 def load_mitchell2022(
     path2mitchell: Path, keep_indels: bool = True
-) -> DonorsMitchel2022:
+) -> DonorsMitchell2022:
     """Load the data from the paper Mitchell et al. 2022"""
     donors = list()
     for donor in get_donors():
@@ -124,11 +114,11 @@ def load_mitchell2022(
         except FileNotFoundError:
             continue
         donors.append(
-            DonorMitchell2022(
-                experiment=Experiment.MITCHELL2022,
+            DonorGenotype(
+                dataset=Dataset.MITCHELL2022,
                 genotype=geno,
                 age=donor["age"],
-                is_healthy=True,
+                status="healthy",
                 name=donor["name"],
             )
         )
@@ -136,4 +126,4 @@ def load_mitchell2022(
     assert donors_loaded, f"Found 0 donors in `path2mitchell`: {path2mitchell}"
     print(f"Loaded {donors_loaded} donors")
 
-    return DonorsMitchel2022(donors)
+    return DonorsMitchell2022(donors)

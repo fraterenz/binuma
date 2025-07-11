@@ -6,7 +6,7 @@ BASEPATH = Path(Path(__file__).resolve().parent / "fixtures")
 
 
 @pytest.mark.parametrize(
-    "path,age,cells,sample,idx",
+    "path,age,cells,sample",
     [
         (
             BASEPATH
@@ -16,7 +16,6 @@ BASEPATH = Path(Path(__file__).resolve().parent / "fixtures")
             0,
             10_000,
             10_000,
-            "0-10000-10000-260",
         ),
         (
             BASEPATH
@@ -26,13 +25,11 @@ BASEPATH = Path(Path(__file__).resolve().parent / "fixtures")
             5,
             10_000,
             5000,
-            "5-10000-5000-260",
         ),
     ],
 )
-def test_load_simulation_from_path(path, age, cells, sample, idx):
+def test_load_simulation_from_path(path, age, cells, sample):
     simulation = hsc.load_simulation_from_path(path)
-    assert simulation.age == age
-    assert simulation.cells == sample
-    assert simulation.idx == idx
-    assert simulation.pop_size == cells
+    assert simulation.metadata.age == age
+    assert simulation.metadata.sample == sample
+    assert simulation.metadata.pop_size == cells

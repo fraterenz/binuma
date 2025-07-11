@@ -1,7 +1,8 @@
-from abc import ABC
-from typing import List, Sequence, Set
+from typing import List, Set
+import uuid
 import pandas as pd
-from binuma import Experiment
+from binuma import Dataset
+from binuma.metadata import Metadata
 
 
 class EntryIsNan(ValueError):
@@ -84,18 +85,18 @@ class DonorGenotype:
         self,
         name: str,
         age: int,
-        is_healthy: bool,
-        experiment: Experiment,
+        status: str,
+        dataset: Dataset,
         genotype: BinaryMutationMatrix,
+        pop_size: int = 100_000,
     ) -> None:
-        self.name = name
-        self.age = age
-        self.is_healthy = is_healthy
-        self.experiment = experiment
+        self.metadata = Metadata(
+            name=name,
+            age=age,
+            status=status,
+            pop_size=pop_size,
+            dataset=dataset,
+            idx=uuid.uuid4(),
+            sample=genotype.get_nb_cells(),
+        )
         self.genotype = genotype
-
-
-class DonorsGenotype(ABC):
-    """A collection of donors representing a dataset of mutational matrices."""
-
-    donors: Sequence[DonorGenotype]

@@ -1,31 +1,29 @@
-from dataclasses import dataclass
-from typing import Optional
+from typing import Annotated
 import pandas as pd
-from pydantic import BaseModel
-from pydantic.types import StrictInt
+from pydantic import UUID4, BaseModel, Field
 from pandantic import Pandantic
-from binuma import Experiment
+from binuma import Dataset
 
 
-@dataclass
-class MetadataSchema(BaseModel):
-    donor: str
-    sample: str
-    age: StrictInt
-    status: Optional[str] = None
-
-
-class Metadata:
+class MetadataDataset:
     """A dataframe with information about each sequenced colony (i.e. sample or cell) for a specific [`Experiment`]."""
 
-    experiment: Experiment
-    df: pd.DataFrame
+    metadata: pd.DataFrame
 
-    def __init__(self, experiment: Experiment, metadata: pd.DataFrame) -> None:
-        validator = Pandantic(schema=MetadataSchema)
+    def __init__(self, metadata: pd.DataFrame) -> None:
+        validator = Pandantic(schema=Metadata)
         try:
-            self.df = validator.validate(dataframe=metadata, errors="raise")
+            self.metadata = validator.validate(dataframe=metadata, errors="raise")
         except ValueError as e:
-            e.add_note("`metadata` doesn't match its schema {:Metadata().__repr__()}")
+            e.add_note(f"`metadata` doesn't match its schema\n{metadata}")
             raise e
-        self.experiment = experiment
+
+
+class Metadata(BaseModel):
+    idx: UUID4
+    name: str
+    sample: Annotated[int, Field(int, strict=True, ge=0)]
+    pop_size: Annotated[int, Field(int, strict=True, ge=0)]
+    age: Annotated[int, Field(int, strict=True, ge=0, le=120)]
+    dataset: Dataset
+    status: str

@@ -9,7 +9,7 @@ respectively."""
 from enum import Enum, auto
 
 
-class Experiment(Enum):
+class Dataset(Enum):
     """The data sources used to load and compute the site frequency spectrum (SFS)."""
 
     MITCHELL2022 = auto()
