@@ -2,8 +2,8 @@ name: website
 
 on:
   push:
-    tags:
-      - v[0-9]+.*
+    branches:
+      - master
 
 # security: restrict permissions for CI jobs.
 permissions:
@@ -27,7 +27,7 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: build doc
-        run: pdoc src/binuma -o docs/
+        run: uv run pdoc -o docs/ src/*
 
       - uses: actions/upload-pages-artifact@v3
         with:
