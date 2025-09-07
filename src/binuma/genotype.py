@@ -88,13 +88,19 @@ class BinaryMutationMatrix:
         1     mut1  cell3
         2     mut2  cell3
         """
-        log.info("Melting the mutation matrix")
+        log.debug(
+            "Melting the mutation matrix of size %.2fMB",
+            self.genotype.memory_usage(deep=True).sum() / 1_000_000,
+        )
         # first bring mutation into a column
         df2 = self.genotype.reset_index().rename(columns={"index": "mutation"})
         # melt -> long form with a 'presence' column
         long = df2.melt(id_vars="mutation", var_name="cell", value_name="presence")
         # filter and drop the presence column
-        log.debug("Mutation matrix melted")
+        log.debug(
+            "Mutation matrix melted now size is %.2fMB",
+            long.memory_usage(deep=True).sum() / 1_000_000,
+        )
         return (
             long[long["presence"] == 1].drop(columns="presence").reset_index(drop=True)
         )

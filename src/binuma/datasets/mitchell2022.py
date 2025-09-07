@@ -66,6 +66,7 @@ def filter_mutations(
 
 class LoadMitchell(DataLoader):
     def load_dataset(self, path2dir: Path) -> Tuple[MetadataDataset, Donors]:
+        log.info("Loading the donors from Mitchell et al. 2022")
         donors, metadata = dict(), list()
         for donor in get_donors():
             idx = uuid4()
@@ -106,6 +107,7 @@ class LoadMitchell(DataLoader):
                 metadata_raw["mutation"] = mut_matrix.genotype.index.to_list()
                 log.debug("Melting metadata")
                 metadata_d = mut_matrix.melt()
+                log.debug("Melting metadata")
                 log.debug("Merging metadata")
                 metadata_d = pd.merge(
                     right=metadata_raw,
