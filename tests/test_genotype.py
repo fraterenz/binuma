@@ -97,8 +97,8 @@ def test_duplicated_mutations():
         BinaryMutationMatrix(binary_mut)
 
 
-def test_polytomies():
-    assert create_cleaned_binary_mut().polytomies == 2
+# def test_polytomies():
+#    assert create_cleaned_binary_mut().polytomies == 2
 
 
 def test_filter_cells():

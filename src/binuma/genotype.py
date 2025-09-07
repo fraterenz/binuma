@@ -62,10 +62,10 @@ class BinaryMutationMatrix:
             """Unique mutations in the genotype"""
         except AssertionError:
             raise NonUniqueMutations
-        log.debug("Computing polytomies")
-        self.polytomies = self.genotype.T.duplicated(keep=False).sum()
-        log.debug("Polytomies computed")
-        """Polytomies or artefacts: different cells with the same genotype"""
+        # log.debug("Computing polytomies")
+        # self.polytomies = self.genotype.T.duplicated(keep=False).sum()
+        # log.debug("Polytomies computed")
+        # """Polytomies or artefacts: different cells with the same genotype"""
 
     # def get_mutations(self) -> List[str]:
     #    print((self.df > 0).any(axis=1))
