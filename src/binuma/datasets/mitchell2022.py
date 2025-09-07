@@ -134,7 +134,14 @@ class LoadMitchell(DataLoader):
         assert donors_loaded, f"Found 0 donors in `path2dir`: {path2dir}"
         log.debug("Concat metadata")
         metadata = pd.concat(metadata)
-        for c in ["donor_id", "donor", "cell_status", "mutation_status", "dataset"]:
+        for c in [
+            "donor_id",
+            "cell",
+            "donor",
+            "cell_status",
+            "mutation_status",
+            "dataset",
+        ]:
             metadata[c] = metadata[c].astype("category")
         log.info("Returning donors and metadata")
         return MetadataDataset(metadata), Donors(donors)

@@ -32,5 +32,5 @@ class Metadata(pa.DataFrameModel):
     dataset: Series[Category]
     mutation: Series[str]
     mutation_status: Series[Category]
-    cell: Series[str]
+    cell: Series[Category]
     cell_status: Series[Category]
