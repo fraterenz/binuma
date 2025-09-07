@@ -1,8 +1,12 @@
+import logging
+
 import pandas as pd
 from pandera.dtypes import Category
 import pandera.pandas as pa
 from pandera.typing import Series
 from pandera import errors
+
+log = logging.getLogger(__name__)
 
 
 class MetadataDataset:
@@ -13,6 +17,7 @@ class MetadataDataset:
     metadata: pd.DataFrame
 
     def __init__(self, metadata: pd.DataFrame) -> None:
+        log.info("Creating the metadata")
         try:
             self.metadata = Metadata.validate(metadata)
         except errors.SchemaError as e:

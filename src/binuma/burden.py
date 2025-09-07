@@ -1,6 +1,9 @@
 from futils import snapshot
+import logging
 
 from binuma.genotype import BinaryMutationMatrix
+
+log = logging.getLogger(__name__)
 
 
 class Burden:
@@ -15,6 +18,7 @@ class Burden:
 
 
 def compute_burden(genotype: BinaryMutationMatrix) -> Burden:
+    log.info("Computing the burden from the mutation matrix")
     burden_donor = genotype.genotype.sum(axis=0).value_counts()
     x_burden, burden_donor = (
         burden_donor.index.to_numpy(),

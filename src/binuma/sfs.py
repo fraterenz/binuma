@@ -1,8 +1,10 @@
+import logging
 from futils import snapshot
 from scipy import stats
 
-
 from binuma.genotype import BinaryMutationMatrix
+
+log = logging.getLogger(__name__)
 
 
 class Sfs:
@@ -13,6 +15,7 @@ class Sfs:
     """
 
     def __init__(self, sfs: snapshot.Histogram) -> None:
+        log.info("Initialisation of the SFS")
         self.sfs = sfs
         """The SFS is implemented as a [`futils.snapshot.Histogram`](https://github.com/fraterenz/futils/tree/master),
         that is a dict of integers. Keys are the j cells (the x-axis of the
@@ -27,6 +30,7 @@ class Sfs:
 
 
 def compute_sfs(genotype: BinaryMutationMatrix) -> Sfs:
+    log.info("Computing the SFS")
     sfs_donor = genotype.genotype.sum(axis=1).value_counts()
     # drop mutations non occurring in any cell
     sfs_donor.drop(index=sfs_donor[sfs_donor.index == 0].index, inplace=True)
